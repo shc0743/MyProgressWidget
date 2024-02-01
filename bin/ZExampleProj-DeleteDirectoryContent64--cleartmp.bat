@@ -1,0 +1,1 @@
+@start ZExampleProj-DeleteDirectoryContent64 "%tmp%"
