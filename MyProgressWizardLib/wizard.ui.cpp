@@ -744,6 +744,18 @@ DWORD DeleteMprgObject(HMPRGOBJ hObject, bool bForceTerminateIfTimeout) {
 
 
 
+extern "C" HMPRGOBJ GetMprgObjectByWizard(HMPRGWIZ hWizard) {
+	try {
+		HMPRGOBJ hObj = mmUiAssignedWizBelongship.at(hWizard);
+		return hObj;
+	}
+	catch (...) {
+		return nullptr;
+	}
+}
+
+
+
 
 
 

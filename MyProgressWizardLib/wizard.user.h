@@ -70,7 +70,7 @@ LONG_PTR SetMprgWizAttribute(HMPRGWIZ hWizard,
 	LONG_PTR newValue);
 
 bool SetMprgWizardValue(HMPRGWIZ hWizard, size_t currentValue);
-bool SetMprgWizardValue_Efficiency(HMPRGOBJ hObject, HMPRGWIZ hWizard, size_t currentValue);
+bool SetMprgWizardValue_Efficiency(HMPRGOBJ hObject, HMPRGWIZ hWizard, size_t currentValue); // not implented
 
 bool SetMprgWizardText(HMPRGWIZ hWizard, PCWSTR psz);
 
@@ -80,6 +80,8 @@ bool HideMprgWizard(HMPRGWIZ hWizard);
 
 bool DestroyMprgWizard(HMPRGOBJ hObject, HMPRGWIZ hWizard);
 DWORD DeleteMprgObject(HMPRGOBJ hObject, bool bForceTerminateIfTimeout = true);
+
+HMPRGOBJ GetMprgObjectByWizard(HMPRGWIZ hWizard);
 
 }
 

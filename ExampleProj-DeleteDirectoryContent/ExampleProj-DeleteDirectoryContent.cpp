@@ -107,6 +107,97 @@ bool __stdcall ComputeDeleteContentCancelHandler(HMPRGWIZ hWiz, HMPRGOBJ hObj) {
 	SetMprgWizardText(hWiz, L"Canceling...");
 	return true;
 }
+inline void CloseHandleIfOk(HANDLE h) {
+	if (h) CloseHandle(h);
+}
+#pragma comment(lib, "Winmm.lib")
+bool RunSecurityCheckForDelete(wstring pDirName) {
+	bool dangerous = false;
+	wchar_t WinSysDir[128]{};
+	(void)GetWindowsDirectoryW(WinSysDir, 127);
+	wcscat_s(WinSysDir, L"\\");
+	str_replace(pDirName, L"/", L"\\");
+	for (size_t i = 0, l = pDirName.length(); i < l; ++i) {
+		pDirName[i] = towlower(pDirName[i]);
+	}
+	for (size_t i = 0, l = wcslen(WinSysDir); i < l; ++i) {
+		WinSysDir[i] = towlower(WinSysDir[i]);
+	}
+
+	if (!pDirName.ends_with(L"\\")) pDirName.append(L"\\");
+	if (pDirName == WinSysDir) dangerous = true;
+
+	if ((!dangerous) && pDirName.starts_with(WinSysDir)) {
+		wcscat_s(WinSysDir, L"temp\\");
+		if (!pDirName.starts_with(WinSysDir)) dangerous = true;
+	}
+	
+	WinSysDir[3] = 0;
+	if ((!dangerous) && (pDirName == (WinSysDir))) dangerous = true;
+
+	if ((!dangerous) && pDirName.starts_with(WinSysDir)) {
+		if (
+			pDirName.ends_with(L"\\users\\") ||
+			pDirName.ends_with(L"\\program files\\") ||
+			pDirName.ends_with(L"\\program files (x86)\\") ||
+			pDirName.ends_with(L"\\programdata\\") ||
+			pDirName.ends_with(L"\\system volume information\\")
+		) dangerous = true;
+	}
+	
+
+	if (!dangerous) return true;
+
+	int nf = 0;
+	wstring warnText = L"(!) Bad things will happen if you don't look this!\n\n"
+		L"You're trying to DELETE ALL FILES IN ";
+	warnText.append(pDirName);
+	warnText += L" .\nUsually, the operation is VERY DANGEROUS.\nIf continue, "
+		"your computer ";
+	warnText.append((pDirName.find(L"windows") != wstring::npos ||
+		pDirName.length() == 2) ? L"will" : L"might");
+	warnText += L" stop working and might be broken.\nYou will have to re-inst"
+		"all Windows or many programs.\n\nIf you really want to cont"
+		"inue for some other reasons, please click Retry button.";
+	CloseHandleIfOk(CreateThread(0, 0, [](PVOID)->DWORD {return
+		PlaySoundW((LPCWSTR)SND_ALIAS_SYSTEMHAND, 0, SND_ALIAS_ID);
+	}, 0, 0, 0));
+	TaskDialog(GetForegroundWindow(), 0, L"Warning - Delete Directory Content",
+		L"Dangerous operation!!", warnText.c_str(), TDCBF_RETRY_BUTTON |
+		TDCBF_YES_BUTTON | TDCBF_CANCEL_BUTTON, IDI_ERROR, &nf);
+
+	if (nf != IDRETRY) return false;
+
+	wstring rrb;
+	retry1:
+	if (!AllocConsole()) return MessageBox(0, LastErrorStr().c_str(),
+		0, MB_ICONHAND) && 0;
+	DWORD dwWritten = 0;
+	WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE), L"!!WARNING!!\nYou are trying to "
+		"perform a dangerous operation.\nTo continue, please type the following code "
+		"and press Enter (the \"l\" is number \"one\") :\n", 149, &dwWritten, 0);
+	ZeroMemory(WinSysDir, sizeof(WinSysDir));
+	srand((UINT)time(0));
+	rrb = GenerateRandomString(16, L"0123456789abcdef"
+		"ghjkmnopqrstuvwxyz"s) + L"\r";
+	wcscat_s(WinSysDir, rrb.c_str());
+	WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE), WinSysDir,
+		DWORD((wcslen(WinSysDir))), &dwWritten, 0);
+	char sInBuf[128]{};
+	ReadConsoleA(GetStdHandle(STD_INPUT_HANDLE), sInBuf, 128, &dwWritten, 0);
+	sInBuf[16] = 0;
+	WinSysDir[16] = 0;
+	if ((WinSysDir != s2ws(sInBuf))) {
+		FreeConsole();
+		if (MessageBoxW(GetForegroundWindow(), L"Incorrect validation text.", 0,
+			MB_ICONERROR | MB_RETRYCANCEL) == IDRETRY) goto retry1;
+		else return false;
+	}
+	FreeConsole();
+
+	if ((WinSysDir == s2ws(sInBuf))) return true;
+	return false;
+}
 DWORD WINAPI MainThread(PVOID vpstr) {
 	wstring pDirName = s2ws((PCSTR)vpstr);
 	wstring szTitle = pDirName + L" - Delete Directory Content"s;
@@ -120,6 +211,12 @@ DWORD WINAPI MainThread(PVOID vpstr) {
 	MyAssert(hWiz);
 
 	OpenMprgWizard(hWiz);
+
+	if (!RunSecurityCheckForDelete(pDirName)) {
+		MessageBoxTimeoutW(GetMprgHwnd(hWiz), L"Dangerous operation.", 0,
+			MB_ICONERROR, 0, 2000);
+		return ERROR_REQUEST_ABORTED;
+	}
 
 	wstring szText = L"Are you sure you want to delete ALL FILES in "s 
 		+ pDirName + L"?";
