@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
 
 
 	DestroyMprgWizard(hObj, hWiz);
-	DeleteObject(hObj);
+	DeleteMprgObject(hObj);
 	return 0;
 }
 ```
