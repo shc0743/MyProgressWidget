@@ -301,6 +301,7 @@ static LRESULT CALLBACK UiMsg_ProgWidget(
 				}
 			}
 			if (wwdata->max != 0) {
+				SendMessage(wwdata->hwProgBar, PBM_SETSTEP, 1, 0);
 				SendMessage(wwdata->hwProgBar, PBM_SETRANGE32, 0, wwdata->max);
 				SendMessage(wwdata->hwProgBar, PBM_SETPOS, (WPARAM)wwdata->value, 0);
 			}
@@ -320,6 +321,7 @@ static LRESULT CALLBACK UiMsg_ProgWidget(
 		break;
 
 	case MYWM_SET_WIZARD_VALUE:
+	case MYWM_STEP_WIZARD_VALUE:
 	{
 		if (hWiz) 
 		try {
@@ -330,7 +332,8 @@ static LRESULT CALLBACK UiMsg_ProgWidget(
 			
 			wwdata->value = lParam;
 			if (wwdata->max != 0)
-			SendMessage(wwdata->hwProgBar, PBM_SETPOS, (WPARAM)lParam, 0);
+			SendMessage(wwdata->hwProgBar, message == MYWM_SET_WIZARD_VALUE ?
+				PBM_SETPOS : PBM_STEPIT, (WPARAM)lParam, 0);
 		}
 		catch (...) {}
 	}
@@ -640,6 +643,19 @@ extern "C" bool SetMprgWizardValue(HMPRGWIZ hWizard, size_t currentValue) {
 		auto pDescriptor = mmUiTh2pData.at(hThrd);
 		auto hwnd = pDescriptor->pData->hWiz2hWnd.at(hWizard);
 		return PostMessage(hwnd, MYWM_SET_WIZARD_VALUE, 0, currentValue);
+	}
+	catch (...) {
+		return false;
+	}
+}
+
+extern "C" bool StepMprgWizardValue(HMPRGWIZ hWizard) {
+	try {
+		HMPRGOBJ hObj = mmUiAssignedWizBelongship.at(hWizard);
+		HANDLE hThrd = mmUiObj2h.at(hObj);
+		auto pDescriptor = mmUiTh2pData.at(hThrd);
+		auto hwnd = pDescriptor->pData->hWiz2hWnd.at(hWizard);
+		return PostMessage(hwnd, MYWM_STEP_WIZARD_VALUE, 0, 0);
 	}
 	catch (...) {
 		return false;

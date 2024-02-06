@@ -107,9 +107,6 @@ bool __stdcall ComputeDeleteContentCancelHandler(HMPRGWIZ hWiz, HMPRGOBJ hObj) {
 	SetMprgWizardText(hWiz, L"Canceling...");
 	return true;
 }
-inline void CloseHandleIfOk(HANDLE h) {
-	if (h) CloseHandle(h);
-}
 #pragma comment(lib, "Winmm.lib")
 bool RunSecurityCheckForDelete(wstring pDirName) {
 	bool dangerous = false;

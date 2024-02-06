@@ -72,6 +72,8 @@ LONG_PTR SetMprgWizAttribute(HMPRGWIZ hWizard,
 bool SetMprgWizardValue(HMPRGWIZ hWizard, size_t currentValue);
 bool SetMprgWizardValue_Efficiency(HMPRGOBJ hObject, HMPRGWIZ hWizard, size_t currentValue); // not implented
 
+bool StepMprgWizardValue(HMPRGWIZ hWizard);
+
 bool SetMprgWizardText(HMPRGWIZ hWizard, PCWSTR psz);
 
 bool OpenMprgWizard(HMPRGWIZ hWizard, int nShow = SW_NORMAL);
