@@ -271,16 +271,16 @@ DWORD WINAPI MainThread(PVOID vpstr) {
 	for (auto& i : vFilesToBeDeleted) {
 		++n;
 		pszBuffer = i.c_str() + 1;
-		if (n - lastUpdateTime >= 100 || n == vFilesToBeDeletedSize) {
+		if (n - lastUpdateTime >= 10 || n == vFilesToBeDeletedSize) {
 			lastUpdateTime = n;
 			double bfb = double(UINT((double(n) /
-				double(vFilesToBeDeletedSize)) * 10000)) / 100;
+				double(vFilesToBeDeletedSize)) * 100000000)) / 1000000;
 			wsBuffer1 = to_wstring(bfb) + L"% (" + to_wstring(n) + L"/"
 				+ to_wstring(vFilesToBeDeletedSize) + L") Deleting ";
 			wsBuffer1.append(pszBuffer);
-			SetMprgWizardText(hWiz, wsBuffer1.c_str());
+			SetMprgWizardText(hWiz, wsBuffer1.c_str(), n == vFilesToBeDeletedSize);
 			UINT fdz = UINT((double(n) / double(vFilesToBeDeletedSize)) * 1000000);
-			SetMprgWizardValue(hWiz, fdz);
+			SetMprgWizardValue(hWiz, fdz, n == vFilesToBeDeletedSize);
 		}
 		if (i[0] == L'\1') {
 			if (GetFileAttributes(pszBuffer) & FILE_ATTRIBUTE_READONLY)

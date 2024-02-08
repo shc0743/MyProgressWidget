@@ -636,8 +636,36 @@ extern "C" LONG_PTR SetMprgWizAttribute(HMPRGWIZ hWizard,
 	}
 }
 
-extern "C" bool SetMprgWizardValue(HMPRGWIZ hWizard, size_t currentValue) {
+
+static unsigned long long GetCurrentSystemTime_ms() {
+	FILETIME ft;
+	GetSystemTimeAsFileTime(&ft);
+
+	ULARGE_INTEGER li{};
+	li.LowPart = ft.dwLowDateTime;
+	li.HighPart = ft.dwHighDateTime;
+
+	return li.QuadPart / 10000;
+}
+
+
+static unsigned long long wizard_last_update_time__text = 0;
+static unsigned long long wizard_last_update_time__value = 0;
+
+
+extern "C" bool SetMprgWizardValue(
+	HMPRGWIZ hWizard, size_t currentValue, bool bForceUpdate
+) {
 	try {
+		if (!bForceUpdate) {
+			auto currentTime = GetCurrentSystemTime_ms();
+			if (currentTime - wizard_last_update_time__value
+				< MINIMIUM_WIZARD_UPDATE_TIME) {
+				return true;
+			}
+			wizard_last_update_time__value = currentTime;
+		}
+
 		HMPRGOBJ hObj = mmUiAssignedWizBelongship.at(hWizard);
 		HANDLE hThrd = mmUiObj2h.at(hObj);
 		auto pDescriptor = mmUiTh2pData.at(hThrd);
@@ -649,12 +677,23 @@ extern "C" bool SetMprgWizardValue(HMPRGWIZ hWizard, size_t currentValue) {
 	}
 }
 
-extern "C" bool StepMprgWizardValue(HMPRGWIZ hWizard) {
+
+extern "C" bool StepMprgWizardValue(HMPRGWIZ hWizard, bool bForceUpdate) {
 	try {
+		if (!bForceUpdate) {
+			auto currentTime = GetCurrentSystemTime_ms();
+			if (currentTime - wizard_last_update_time__value
+				< MINIMIUM_WIZARD_UPDATE_TIME) {
+				return true;
+			}
+			wizard_last_update_time__value = currentTime;
+		}
+
 		HMPRGOBJ hObj = mmUiAssignedWizBelongship.at(hWizard);
 		HANDLE hThrd = mmUiObj2h.at(hObj);
 		auto pDescriptor = mmUiTh2pData.at(hThrd);
 		auto hwnd = pDescriptor->pData->hWiz2hWnd.at(hWizard);
+		auto wd = pDescriptor->pData->hWnd2pData.at(hwnd);
 		return PostMessage(hwnd, MYWM_STEP_WIZARD_VALUE, 0, 0);
 	}
 	catch (...) {
@@ -663,8 +702,17 @@ extern "C" bool StepMprgWizardValue(HMPRGWIZ hWizard) {
 }
 
 
-extern "C" bool SetMprgWizardText(HMPRGWIZ hWizard, PCWSTR psz) {
+extern "C" bool SetMprgWizardText(HMPRGWIZ hWizard, PCWSTR psz, bool bForceUpdate) {
 	try {
+		if (!bForceUpdate) {
+			auto currentTime = GetCurrentSystemTime_ms();
+			if (currentTime - wizard_last_update_time__text
+				< MINIMIUM_WIZARD_UPDATE_TIME) {
+				return true;
+			}
+			wizard_last_update_time__text = currentTime;
+		}
+
 		HMPRGOBJ hObj = mmUiAssignedWizBelongship.at(hWizard);
 		HANDLE hThrd = mmUiObj2h.at(hObj);
 		auto pDescriptor = mmUiTh2pData.at(hThrd);
@@ -685,7 +733,8 @@ extern "C" bool UpdateMprgWizard(HMPRGWIZ hWizard) {
 		HANDLE hThrd = mmUiObj2h.at(hObj);
 		auto pDescriptor = mmUiTh2pData.at(hThrd);
 		auto hwnd = pDescriptor->pData->hWiz2hWnd.at(hWizard);
-		return PostMessage(hwnd, MYWM_UPDATE_WIZARD, 0, (LPARAM)pDescriptor);
+		return SendMessageTimeoutW(hwnd, MYWM_UPDATE_WIZARD, 0, (LPARAM)pDescriptor,
+			SMTO_ABORTIFHUNG | SMTO_BLOCK, 500, NULL);
 	}
 	catch (...) {
 		return NULL;

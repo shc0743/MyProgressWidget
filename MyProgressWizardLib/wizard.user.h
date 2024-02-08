@@ -69,12 +69,12 @@ LONG_PTR SetMprgWizAttribute(HMPRGWIZ hWizard,
 	MPRG_WIZARD_EXTENSIBLE_ATTRIBUTES nAttrName,
 	LONG_PTR newValue);
 
-bool SetMprgWizardValue(HMPRGWIZ hWizard, size_t currentValue);
+bool SetMprgWizardValue(HMPRGWIZ hWizard, size_t currentValue, bool bForcceUpdate = false);
 bool SetMprgWizardValue_Efficiency(HMPRGOBJ hObject, HMPRGWIZ hWizard, size_t currentValue); // not implented
 
-bool StepMprgWizardValue(HMPRGWIZ hWizard);
+bool StepMprgWizardValue(HMPRGWIZ hWizard, bool bForcceUpdate = false);
 
-bool SetMprgWizardText(HMPRGWIZ hWizard, PCWSTR psz);
+bool SetMprgWizardText(HMPRGWIZ hWizard, PCWSTR psz, bool bForcceUpdate = false);
 
 bool OpenMprgWizard(HMPRGWIZ hWizard, int nShow = SW_NORMAL);
 bool HideMprgWizard(HMPRGWIZ hWizard);
