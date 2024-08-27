@@ -18,9 +18,6 @@
     <ClCompile Include="MyProgressWizardLib.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\resource\tool.cpp">
-      <Filter>资源文件</Filter>
-    </ClCompile>
     <ClCompile Include="wizard.ui.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -33,11 +30,11 @@
     <ClCompile Include="wizard.threading.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\static\tool.cpp">
+      <Filter>资源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\resource\tool.h">
-      <Filter>资源文件</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>头文件</Filter>
     </ClInclude>

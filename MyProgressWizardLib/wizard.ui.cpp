@@ -2,7 +2,7 @@
 #include "wizard.meta.hpp"
 #include "app.pool.hpp"
 
-#include "../../resource/tool.h"
+#include "../static/tool.h"
 using namespace std;
 
 

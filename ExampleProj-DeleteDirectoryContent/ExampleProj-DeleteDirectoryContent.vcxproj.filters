@@ -18,7 +18,7 @@
     <ClCompile Include="ExampleProj-DeleteDirectoryContent.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\resource\tool.cpp">
+    <ClCompile Include="..\static\tool.cpp">
       <Filter>资源文件</Filter>
     </ClCompile>
   </ItemGroup>

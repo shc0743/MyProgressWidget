@@ -3,7 +3,7 @@
 //
 
 #include <iostream>
-#include "../../resource/tool.h"
+#include "../static/tool.h"
 using namespace std;
 
 #pragma comment(linker, "/entry:mainCRTStartup /subsystem:windows")

@@ -161,14 +161,13 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\resource\tool.cpp" />
+    <ClCompile Include="..\static\tool.cpp" />
     <ClCompile Include="app.pool.cpp" />
     <ClCompile Include="MyProgressWizardLib.cpp" />
     <ClCompile Include="wizard.threading.cpp" />
     <ClCompile Include="wizard.ui.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\resource\tool.h" />
     <ClInclude Include="app.pool.hpp" />
     <ClInclude Include="ctls.h" />
     <ClInclude Include="resource.h" />
